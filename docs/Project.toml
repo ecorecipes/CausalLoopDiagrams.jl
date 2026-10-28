@@ -1,0 +1,13 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+DocumenterCitations = "daee34ce-89f3-4625-b898-19384cb65244"
+CausalLoopDiagrams = "a1d5c0e2-9b47-4e3a-8f61-3c2d6b8e7f10"
+BayesianNetworks = "47d2e50c-3d9a-425e-96fd-023c794d3c65"
+
+[compat]
+Documenter = "1"
+DocumenterCitations = "1"
+
+[sources]
+CausalLoopDiagrams = {path = ".."}
+BayesianNetworks = {path = "../../BayesianNetworks.jl"}

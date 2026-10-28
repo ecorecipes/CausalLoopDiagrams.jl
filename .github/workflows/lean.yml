@@ -1,0 +1,26 @@
+name: Lean
+# This project has no Mathlib dependency (ADR 0026), so there is no shared packages
+# directory to redirect and no `lake exe cache get` step: the polarity rig has four
+# constructors and every law it satisfies is a case split closed by `rfl`. A clean build
+# takes seconds.
+on:
+  push:
+    branches: [main]
+    paths: ['proofs/**']
+  pull_request:
+    paths: ['proofs/**']
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: proofs
+          use-github-cache: false
+          use-mathlib-cache: 'false'
+          build-args: "--wfail"
+      - name: Axiom audit
+        working-directory: proofs
+        run: lake env lean Audit.lean

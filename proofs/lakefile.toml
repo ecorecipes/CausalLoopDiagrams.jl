@@ -1,0 +1,11 @@
+name = "causal_loop_diagrams_proofs"
+defaultTargets = ["CausalLoopDiagramsProofs"]
+
+# No Mathlib, and deliberately so (ADR 0026). The polarity rig is a four-element inductive
+# type, so every law it has to satisfy is closed by a finite case split and `rfl`; taking a
+# 7 GB dependency to case-split on four constructors would be absurd. This is the only
+# proofs/ project in the ecosystem without `require mathlib`, which is also why it has no
+# `packagesDir` pointing at the shared dependency checkout.
+
+[[lean_lib]]
+name = "CausalLoopDiagramsProofs"
