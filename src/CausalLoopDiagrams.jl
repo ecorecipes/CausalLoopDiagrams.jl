@@ -84,7 +84,7 @@ export nfactors, nlinks, factor_names, factor_name, has_factor, factor_id, link_
 export Loop, loops, loop_polarity, loop_length, loop_summary, delayed_loops,
        instantaneous_loops, reinforcing, balancing, is_delayed
 # Maps between diagrams
-export coarsen, collapse_lags, compare_diagrams, DiagramComparison
+export coarsen, collapse_lags, compare_diagrams, DiagramComparison, subdiagram
 # Motifs: the shapes a diagram is made of, and the census of them across a collection
 export MotifOccurrence, host_factors, motif_factors, occurrences, count_occurrences,
        has_motif, motif_key, canonical_motif, MOTIF_LIBRARY, motif, motif_names,

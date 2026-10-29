@@ -51,4 +51,38 @@
         @test occursin("TB", named)
         @test occursin("box", named)
     end
+
+    @testset "groups draw themed boxes" begin
+        # What a comprehensive diagram needs: the themes as boxes, so that thirty factors
+        # stay readable. Every factor still appears exactly once.
+        boxed = sprint(show, MIME"text/plain"(),
+                       to_graphviz(cld;
+                                   groups=["Pathogen" => [:Inoculum, :Infection],
+                                           "Host" => [:Defoliation, :Vigour]]))
+        @test count("cluster_", boxed) == 2
+        @test occursin("Pathogen", boxed)
+        @test occursin("Host", boxed)
+        for name in factor_names(cld)
+            @test count("label=\"$(name)\"", boxed) == 1
+        end
+        @test count("->", boxed) == nlinks(cld)
+        # Ungrouped by default, so every existing drawing is unchanged.
+        @test !occursin("cluster_", dot)
+    end
+
+    @testset "a partial grouping leaves the rest outside the boxes" begin
+        partial = sprint(show, MIME"text/plain"(),
+                         to_graphviz(cld; groups=["Pathogen" => [:Inoculum]]))
+        @test count("cluster_", partial) == 1
+        for name in factor_names(cld)
+            @test count("label=\"$(name)\"", partial) == 1
+        end
+    end
+
+    @testset "a group naming an unknown or repeated factor is an error" begin
+        @test_throws UnknownFactorError to_graphviz(cld; groups=["x" => [:Nonesuch]])
+        @test_throws ArgumentError to_graphviz(cld;
+                                               groups=["a" => [:Inoculum],
+                                                       "b" => [:Inoculum]])
+    end
 end

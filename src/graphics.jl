@@ -20,6 +20,20 @@ function _loop_pairs(loop::Loop)
     return Set((loop.factors[i], loop.factors[mod1(i + 1, n)]) for i in 1:n)
 end
 
+function _factor_node(cld, f)
+    return Graphviz.Node("f$f",
+                         Dict{Symbol,String}(:label => string(factor_name(cld,
+                                                                          f))))
+end
+
+# A themed box. The name must begin with `cluster` for dot to draw the border at all.
+function _cluster(index::Integer, label, members::Vector{Graphviz.Statement})
+    attrs = Dict{Symbol,String}(:label => _gv_string(label), :style => "rounded",
+                                :color => "grey60", :fontcolor => "grey25",
+                                :fontsize => "11", :labeljust => "l", :margin => "10")
+    return Graphviz.Subgraph("cluster_$(index)", members; graph_attrs=attrs)
+end
+
 """
     to_graphviz(cld::AbstractCausalLoopDiagram; kwargs...) -> Graphviz.Graph
 
@@ -32,13 +46,20 @@ Keyword arguments:
 
   - `highlight`: a [`Loop`](@ref), or a vector of factor names read as one, whose links are
     drawn heavier. This is how a figure points at the loop the text is about.
+  - `groups`: an iterable of `label => factor names` pairs, each drawn as a labelled box
+    (a Graphviz cluster) around those factors. This is what keeps a diagram of thirty or
+    more factors legible: the boxes carry the themes -- the abiotic drivers, the biotic
+    interactions, the management levers -- while the links stay where the diagram puts
+    them. A factor named in no group is drawn outside the boxes, so a partial grouping is
+    allowed; naming a factor the diagram does not have raises
+    [`UnknownFactorError`](@ref), and naming one in two groups an `ArgumentError`.
   - `rankdir = "LR"`, `name = "G"`, and `graph_attrs`, `node_attrs`, `edge_attrs`
     (dictionaries merged over the defaults), as in BayesianNetworks' own `to_graphviz`.
 
 Render with `show(io, MIME"image/svg+xml"(), g)` or
 `BayesianNetworks.Graphviz.run_graphviz`, which is how the vignettes write their PNGs.
 """
-function to_graphviz(cld::AbstractCausalLoopDiagram; highlight=nothing,
+function to_graphviz(cld::AbstractCausalLoopDiagram; highlight=nothing, groups=nothing,
                      rankdir::AbstractString="LR", name::AbstractString="G",
                      graph_attrs::AbstractDict=Dict{Symbol,String}(),
                      node_attrs::AbstractDict=Dict{Symbol,String}(),
@@ -52,10 +73,26 @@ function to_graphviz(cld::AbstractCausalLoopDiagram; highlight=nothing,
         Set((names[i], names[mod1(i + 1, length(names))]) for i in 1:length(names))
     end
     stmts = Graphviz.Statement[]
+    boxed = Set{Symbol}()
+    if groups !== nothing
+        for (i, group) in enumerate(groups)
+            label, members = first(group), last(group)
+            inside = Graphviz.Statement[]
+            for nm in members
+                f = Symbol(nm)
+                has_factor(cld, f) ||
+                    throw(UnknownFactorError(f, collect(factor_names(cld))))
+                f in boxed &&
+                    throw(ArgumentError("factor $(repr(f)) is in two groups; each factor " *
+                                        "belongs to at most one box."))
+                push!(boxed, f)
+                push!(inside, _factor_node(cld, factor_id(cld, f)))
+            end
+            push!(stmts, _cluster(i, label, inside))
+        end
+    end
     for f in parts(cld, :Factor)
-        push!(stmts,
-              Graphviz.Node("f$f",
-                            Dict{Symbol,String}(:label => string(factor_name(cld, f)))))
+        factor_name(cld, f) in boxed || push!(stmts, _factor_node(cld, f))
     end
     for l in parts(cld, :Link)
         s = subpart(cld, l, :link_source)

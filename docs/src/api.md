@@ -80,6 +80,7 @@ coarsen
 collapse_lags
 compare_diagrams
 DiagramComparison
+subdiagram
 ```
 
 ## Motifs

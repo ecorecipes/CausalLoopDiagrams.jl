@@ -498,6 +498,43 @@ function _induced_subdiagram(cld::AbstractCausalLoopDiagram, idx::Vector{Int})
     return out
 end
 
+"""
+    subdiagram(cld, factors) -> CausalLoopDiagram
+
+The induced sub-diagram on `factors`: those factors in the order given, and every link of
+`cld` running between two of them, each keeping its polarity and its delay.
+
+This is how a diagram too large to read at once is read a theme at a time -- the abiotic
+drivers and what they touch, or one pathogen's cycle -- without rewriting the links by hand
+and risking a drawing that disagrees with the diagram it came from. It is the same induced
+reading [`motif_census`](@ref) counts with, so a block's shape here is the shape the census
+sees.
+
+Naming a factor the diagram does not have raises [`UnknownFactorError`](@ref); a repeated
+name is taken once.
+
+```jldoctest
+julia> cld = causal_loop_diagram([(:Rain, :Grass) => POSITIVE,
+                                  (:Grass, :Sheep) => POSITIVE,
+                                  (:Sheep, :Grass) => NEGATIVE]);
+
+julia> sub = subdiagram(cld, [:Grass, :Sheep]);
+
+julia> (nfactors(sub), nlinks(sub), loop_polarity(sub, [:Grass, :Sheep]))
+(2, 2, -)
+```
+"""
+function subdiagram(cld::AbstractCausalLoopDiagram, factors)
+    idx = Int[]
+    for nm in factors
+        f = Symbol(nm)
+        has_factor(cld, f) || throw(UnknownFactorError(f, collect(factor_names(cld))))
+        i = factor_id(cld, f)
+        i in idx || push!(idx, i)
+    end
+    return _induced_subdiagram(cld, idx)
+end
+
 # Connected with no isolated factor: every factor touches a link inside the sub-diagram and
 # the undirected graph on them hangs together. For a single factor this forces a self-link,
 # which is what makes a one-factor census report feedback rather than mere existence.

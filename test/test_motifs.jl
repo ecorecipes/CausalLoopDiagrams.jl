@@ -1,6 +1,37 @@
 # Finding motifs: the embedding and what it counts, the subset order it matches along, the
 # canonical form, and the census across a collection.
 
+@testset "subdiagram" begin
+    cld = causal_loop_diagram([(:Rain, :Grass) => POSITIVE,
+                               (:Grass, :Sheep) => POSITIVE,
+                               delayed((:Sheep, :Grass) => NEGATIVE),
+                               (:Sheep, :Wolf) => POSITIVE])
+
+    @testset "it keeps exactly the links between the chosen factors" begin
+        sub = subdiagram(cld, [:Grass, :Sheep])
+        @test factor_names(sub) == [:Grass, :Sheep]
+        @test nlinks(sub) == 2
+        @test loop_polarity(sub, [:Grass, :Sheep]) == NEGATIVE
+    end
+
+    @testset "polarity and delay survive" begin
+        sub = subdiagram(cld, [:Sheep, :Grass])
+        @test link_polarity(sub, :Sheep, :Grass) == NEGATIVE
+        @test is_delayed(only(loops(sub)))
+    end
+
+    @testset "the whole factor list gives the diagram back" begin
+        whole = subdiagram(cld, factor_names(cld))
+        @test nfactors(whole) == nfactors(cld)
+        @test nlinks(whole) == nlinks(cld)
+    end
+
+    @testset "a repeated name is taken once, an unknown one is an error" begin
+        @test nfactors(subdiagram(cld, [:Grass, :Grass, :Sheep])) == 2
+        @test_throws UnknownFactorError subdiagram(cld, [:Nonesuch])
+    end
+end
+
 @testset "motifs" begin
     @testset "the subset order on polarities is a partial order with a top" begin
         for p in polarities()
