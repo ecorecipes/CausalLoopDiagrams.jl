@@ -43,6 +43,11 @@ directions, and it is as interested in what the translation loses as in what it 
   factors, `collapse_lags` its time-index special case, and `compare_diagrams` a
   link-by-link comparison -- which is how a sketch is held against the network that was
   built from it.
+- **Motifs.** `occurrences` finds every label-respecting embedding of a small diagram in a
+  larger one, matching along the subset order on polarities, so a motif link labelled `?`
+  matches any sign. `MOTIF_LIBRARY` names ten standard shapes and `motif_census` counts
+  them across a *collection* of diagrams, ranked by how many contain each -- which asks a
+  question of a body of models that no single model can answer.
 
 ## Installation
 

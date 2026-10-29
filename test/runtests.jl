@@ -9,6 +9,7 @@ using FiniteKernels
     include("test_loops.jl")
     include("test_extraction.jl")
     include("test_morphisms.jl")
+    include("test_motifs.jl")
     include("test_graphics.jl")
     include("test_errors.jl")
     include("test_docstrings.jl")

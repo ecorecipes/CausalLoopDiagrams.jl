@@ -82,6 +82,40 @@ compare_diagrams
 DiagramComparison
 ```
 
+## Motifs
+
+Finding motifs is the third of Baez and Chaudhuri's morphisms between labelled graphs. A
+motif is itself a small labelled graph, and an occurrence of it is an embedding that
+respects the labels: the matching runs along the subset order on [`Polarity`](@ref)
+(`issubset`), so a motif link labelled [`INDETERMINATE`](@ref) matches a link of any sign.
+
+```@docs
+occurrences
+count_occurrences
+has_motif
+MotifOccurrence
+host_factors
+motif_factors
+issubset(::Polarity, ::Polarity)
+```
+
+### The standard shapes
+
+```@docs
+MOTIF_LIBRARY
+motif
+motif_names
+```
+
+### Canonical form and the census
+
+```@docs
+motif_key
+canonical_motif
+motif_census
+MotifCount
+```
+
 ## Drawing
 
 ```@docs
@@ -95,4 +129,5 @@ CausalLoopDiagramsError
 UnknownFactorError
 NotALoopError
 TooManyLoopsError
+TooManyOccurrencesError
 ```

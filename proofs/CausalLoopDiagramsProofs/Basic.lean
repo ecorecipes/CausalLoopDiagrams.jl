@@ -76,6 +76,33 @@ def zero : Polarity := noEffect
 does to every link at it. -/
 def neg (p : Polarity) : Polarity := mul p negative
 
+/-- Containment in the subset order: whether every sign `a` admits is a sign `b` admits,
+reading the four polarities as the subsets `{0}`, `{+}`, `{-}` and `{0, +, -}` of the sign
+hyperfield that they are.
+
+Written out as a table, like `mul` and `add`, so that it can be compared line by line with
+`Base.issubset(::Polarity, ::Polarity)` in `src/polarity.jl` -- which says the same thing in
+one line, `a == b || b == INDETERMINATE`. This is the order a motif matches along: a motif
+link matches a diagram's link when the diagram's label is a subset of the motif's
+(ADR 0027). -/
+def subset : Polarity → Polarity → Bool
+  | noEffect, noEffect => true
+  | noEffect, positive => false
+  | noEffect, negative => false
+  | noEffect, indeterminate => true
+  | positive, noEffect => false
+  | positive, positive => true
+  | positive, negative => false
+  | positive, indeterminate => true
+  | negative, noEffect => false
+  | negative, positive => false
+  | negative, negative => true
+  | negative, indeterminate => true
+  | indeterminate, noEffect => false
+  | indeterminate, positive => false
+  | indeterminate, negative => false
+  | indeterminate, indeterminate => true
+
 instance : Mul Polarity := ⟨mul⟩
 instance : Add Polarity := ⟨add⟩
 instance : Neg Polarity := ⟨neg⟩

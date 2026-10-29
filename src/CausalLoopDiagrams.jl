@@ -41,6 +41,10 @@ This package is the two-way translation.
   - [`coarsen`](@ref), [`collapse_lags`](@ref) and [`compare_diagrams`](@ref) are the maps
     between diagrams: the push-forward of labels along a map of factors, its time-index
     special case, and a link-by-link comparison of two labellings of one graph.
+  - [`occurrences`](@ref) and [`motif_census`](@ref) are the third of Baez and Chaudhuri's
+    morphisms, finding motifs: a motif is itself a small labelled graph, an occurrence of
+    it is a label-respecting embedding, and the census counts the shapes across a
+    collection of diagrams. [`MOTIF_LIBRARY`](@ref) names the standard ones.
 
 What the translation discards is worth stating plainly, because it is the reason a diagram
 is a sketch and a network is a model. A polarity cannot hold a magnitude, so it cannot say
@@ -56,6 +60,8 @@ module CausalLoopDiagrams
 
 using ACSets: BasicSchema, @abstract_acset_type, @acset_type, nparts, parts, subpart,
               incident, add_part!
+
+using OrderedCollections: OrderedDict
 
 using FiniteKernels: FiniteKernel, FiniteAxis, FiniteSpace, cpt, axis_names, DEFAULT_ATOL
 
@@ -79,10 +85,15 @@ export Loop, loops, loop_polarity, loop_length, loop_summary, delayed_loops,
        instantaneous_loops, reinforcing, balancing, is_delayed
 # Maps between diagrams
 export coarsen, collapse_lags, compare_diagrams, DiagramComparison
+# Motifs: the shapes a diagram is made of, and the census of them across a collection
+export MotifOccurrence, host_factors, motif_factors, occurrences, count_occurrences,
+       has_motif, motif_key, canonical_motif, MOTIF_LIBRARY, motif, motif_names,
+       MotifCount, motif_census
 # Drawing
 export to_graphviz
-# Exceptions (ADR 0013): the root and the three concrete types under it
-export CausalLoopDiagramsError, UnknownFactorError, NotALoopError, TooManyLoopsError
+# Exceptions (ADR 0013): the root and the four concrete types under it
+export CausalLoopDiagramsError, UnknownFactorError, NotALoopError, TooManyLoopsError,
+       TooManyOccurrencesError
 
 include("polarity.jl")
 include("errors.jl")
@@ -90,6 +101,7 @@ include("diagram.jl")
 include("loops.jl")
 include("extraction.jl")
 include("morphisms.jl")
+include("motifs.jl")
 include("graphics.jl")
 
 end # module

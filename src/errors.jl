@@ -13,7 +13,8 @@
     CausalLoopDiagramsError
 
 Abstract supertype of every exception that CausalLoopDiagrams defines:
-[`UnknownFactorError`](@ref), [`NotALoopError`](@ref) and [`TooManyLoopsError`](@ref). It
+[`UnknownFactorError`](@ref), [`NotALoopError`](@ref), [`TooManyLoopsError`](@ref) and
+[`TooManyOccurrencesError`](@ref). It
 marks the package that introduced an error, not a kind of failure. Invalid arguments and
 keywords raise Base's `ArgumentError` instead, which is outside this root, and the typed
 errors of `BayesianNetworks` and `FiniteKernels` pass through unchanged.
@@ -68,4 +69,26 @@ function Base.showerror(io::IO, e::TooManyLoopsError)
     return print(io, "TooManyLoopsError: the diagram has more than ", e.max_loops,
                  " elementary loops (", e.found, " found before stopping). Pass a larger ",
                  "max_loops if that is what you want.")
+end
+
+"""
+    TooManyOccurrencesError(found, max_occurrences)
+
+Thrown by [`occurrences`](@ref) when a motif occurs in a diagram more often than
+`max_occurrences`. Subgraph matching is exponential in the size of the motif, so the cap is
+a guard rather than a limit of the algorithm; raise it deliberately.
+
+A motif that occurs this often is usually a motif that says nothing -- a bare link, or a
+chain of [`INDETERMINATE`](@ref) links, which matches everywhere.
+"""
+struct TooManyOccurrencesError <: CausalLoopDiagramsError
+    found::Int
+    max_occurrences::Int
+end
+
+function Base.showerror(io::IO, e::TooManyOccurrencesError)
+    return print(io, "TooManyOccurrencesError: the motif occurs more than ",
+                 e.max_occurrences, " times (", e.found, " found before stopping). Pass a ",
+                 "larger max_occurrences if that is what you want, but a motif this common ",
+                 "is usually one that says nothing.")
 end

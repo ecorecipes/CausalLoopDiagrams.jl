@@ -1,5 +1,6 @@
 import CausalLoopDiagramsProofs.Basic
 import CausalLoopDiagramsProofs.Rig
+import CausalLoopDiagramsProofs.Order
 import CausalLoopDiagramsProofs.Loops
 
 /-!
@@ -15,6 +16,11 @@ Modules, in import order:
 - `Rig`: that the two make a commutative rig, with `one = positive` and `zero = noEffect`,
   `zero` absorbing for `mul`, and distributivity both ways. Every proof is a case split
   closed by `rfl`.
+- `Order`: that `subset` -- containment, reading the polarities as the subsets of the sign
+  hyperfield they are -- is a partial order with `indeterminate` greatest, and that both rig
+  operations respect it. That order is what a motif matches along (ADR 0027), and the two
+  monotonicity theorems are what make a motif of a path, and a motif that survives
+  `coarsen`, mean what they appear to mean.
 - `Loops`: the polarity of a path as a product over a list, its functoriality
   (`pathPolarity_append`), and the theorem that a loop's polarity does not depend on where
   the loop is cut (`pathPolarity_rotate`).

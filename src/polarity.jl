@@ -126,6 +126,42 @@ Base.one(::Polarity) = POSITIVE
 Base.zero(::Type{Polarity}) = NO_EFFECT
 Base.zero(::Polarity) = NO_EFFECT
 
+"""
+    issubset(a::Polarity, b::Polarity) -> Bool
+
+Whether every sign `a` admits is a sign `b` admits, in the subset order the four
+polarities carry by construction: `{0}`, `{+}` and `{-}` are the three atoms, each
+contained in itself and in `{0, +, -}` ([`INDETERMINATE`](@ref)) and in nothing else.
+
+It is a partial order, not a total one -- [`POSITIVE`](@ref) and [`NEGATIVE`](@ref) are
+incomparable -- with `INDETERMINATE` as its greatest element. There is no least element,
+because the empty set is not one of the four.
+
+This is the order a motif matches along (see [`occurrences`](@ref)), and the direction
+matters: a motif link matches a diagram's link when `issubset(diagram_label,
+motif_label)`, the label found being one of the signs the motif will admit. So a motif link
+labelled `INDETERMINATE` asks only that *some* link be there and matches whatever sign it
+carries, while one labelled `POSITIVE` matches a positive link alone. The wildcard of the
+motif search is therefore not an extra value added for it, but the top of the rig that was
+already there.
+
+Read the other way the containment says something different and also true: a link which is
+genuinely `INDETERMINATE` does **not** match a motif asking for `POSITIVE`, because the
+diagram does not claim that sign.
+
+```jldoctest
+julia> issubset(POSITIVE, INDETERMINATE)
+true
+
+julia> issubset(INDETERMINATE, POSITIVE)
+false
+
+julia> issubset(POSITIVE, NEGATIVE)
+false
+```
+"""
+Base.issubset(a::Polarity, b::Polarity) = a == b || b == INDETERMINATE
+
 const _SYMBOLS = ("0", "+", "-", "?")
 const _NAMES = (:no_effect, :positive, :negative, :indeterminate)
 
