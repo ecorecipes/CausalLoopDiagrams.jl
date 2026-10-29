@@ -4,22 +4,30 @@
 This module contains no declarations. It records, in one place, what this project does
 **not** prove, so that the claim made for it stays the claim it can support.
 
-## The composition theorem
+## The composition theorem, which is now proved
 
-The reading of a polarity off a conditional probability table
-(`polarity(kernel, parent)` in `src/polarity.jl`) is stochastic monotonicity in the declared
-order of the states. What makes that reading a *labelling* in Baez's sense, rather than a
-convention, is that monotone kernels compose: if the child's distribution rises with the
-parent and a further kernel is monotone in the child, the composite rises with the parent,
-so the polarity of a path is the product of the polarities of its links.
+This file used to say that the one gap worth closing was the composition theorem: that
+monotone kernels compose, which is what makes reading a polarity off a conditional
+probability table a *labelling* in Baez's sense rather than a convention. It is closed.
+`Theory.Composition` proves it -- `reads_comp` for the four sign combinations, with
+`polarity_comp` stating the consequence in the rig of `Basic.lean` -- and the proof needed
+exactly what this file predicted it would: real-valued kernels and summation by parts, so
+Mathlib. ADR 0028 took that dependency for the `Theory` library alone, and the core remains
+Mathlib-free and axiom-free.
 
-That theorem is checked numerically in `test/test_polarity.jl`, against
-`compose_kernel` on all four sign combinations, and it is **not** proved here. The argument
-needs real-valued kernels, finite sums and the equivalence between dominance of upper tails
-and monotonicity of expectations of increasing functions, which is an Abel-summation
-argument; none of that is available without Mathlib, and ADR 0026 chose a Mathlib-free
-project for the sake of the four-element rig. Closing this gap means taking the Mathlib
-dependency for one module, and it is the one gap worth closing.
+Two things that proof does **not** cover, which are the honest residue of closing the gap:
+
+- **The other parents.** The theorem is stated for kernels with one parent, which is what a
+  link of a causal loop diagram is. `polarity(kernel, parent)` in `src/polarity.jl` holds
+  the other parents fixed and demands monotonicity for *every* configuration of them,
+  failing to `INDETERMINATE` otherwise. That quantifier over configurations is not modelled
+  here, so the Lean theorem is about each slice and the Julia function is about all of them
+  at once.
+- **The tolerance.** The theorem is about exact real arithmetic. The Julia test allows
+  `atol` slack in each comparison, so a table within tolerance of monotone reads as
+  monotone, and nothing proved here says that composing two such tables stays within any
+  particular tolerance. The numerical test in `test/test_polarity.jl` is what stands behind
+  the floating-point case.
 
 ## What else is outside the project
 

@@ -1,8 +1,9 @@
 name: Lean
-# This project has no Mathlib dependency (ADR 0026), so there is no shared packages
-# directory to redirect and no `lake exe cache get` step: the polarity rig has four
-# constructors and every law it satisfies is a case split closed by `rfl`. A clean build
-# takes seconds.
+# The default library is Mathlib-free (ADR 0026) and a clean build of it takes seconds. The
+# `Theory` library is not: ADR 0028 took the Mathlib dependency for the composition theorem
+# alone, so this workflow now redirects the shared packages directory and fetches Mathlib's
+# prebuilt oleans, as every other proofs/ workflow in the ecosystem does. The separation is
+# itself checked, by `make mathlib-free`, before anything is built.
 on:
   push:
     branches: [main]
@@ -15,12 +16,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Check that the core library reaches no Mathlib (ADR 0028)
+        working-directory: proofs
+        run: make mathlib-free
+      - name: Use a local packages directory in CI (the shared one is a sibling path on developer machines)
+        working-directory: proofs
+        # Lake reads the packages directory from lake-manifest.json, not from lakefile.toml
+        # (`Workspace.materializeDeps` in Lake/Load/Resolve.lean of leanprover/lean4:v4.30.0
+        # uses `manifest.packagesDir?.getD ws.relPkgsDir`), and logs "manifest out of date"
+        # when the two disagree, which --wfail turns into a failure. There is no environment
+        # variable override in this toolchain, so both files are rewritten.
+        run: |
+          sed -i 's#^packagesDir = .*#packagesDir = ".lake/packages"#' lakefile.toml
+          python3 -c 'import json; p = "lake-manifest.json"; m = json.load(open(p)); m["packagesDir"] = ".lake/packages"; json.dump(m, open(p, "w"), indent=1)'
       - uses: leanprover/lean-action@v1
         with:
           lake-package-directory: proofs
           use-github-cache: false
-          use-mathlib-cache: 'false'
+          # ADR 0005 promises `lake exe cache get`; lean-action runs it when this is true.
+          # Set explicitly rather than relying on `auto`, so Mathlib's prebuilt oleans are
+          # always fetched instead of a ~7 GB Mathlib build.
+          use-mathlib-cache: 'true'
           build-args: "--wfail"
-      - name: Axiom audit
+      - name: Build the Theory library, the one that reaches Mathlib
+        working-directory: proofs
+        run: lake build --wfail Theory
+      - name: Axiom audit, the Mathlib-free core
         working-directory: proofs
         run: lake env lean Audit.lean
+      - name: Axiom audit, the composition theorem
+        working-directory: proofs
+        run: lake env lean AuditTheory.lean

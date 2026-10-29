@@ -211,7 +211,11 @@ increases. So
 Monotone kernels compose, which is what makes this reading a labelling in the sense of
 [Baez2024](@cite): if the child's distribution rises with the parent and a further kernel
 is monotone in the child, the composite rises with the parent, so the polarity of a path is
-the product of the polarities of its links. The direction depends on the order the states
+the product of the polarities of its links. That is a theorem, proved for one-parent kernels
+in exact arithmetic in `proofs/CausalLoopDiagramsProofs/Theory/Composition.lean`
+(`reads_comp`, and `polarity_comp` for the statement in the rig); the test suite checks the
+same identity numerically against `compose_kernel` on all four sign combinations, which is
+what stands behind the floating-point case and the `atol` slack below. The direction depends on the order the states
 were *declared* in; a variable whose states run from best to worst reads backwards, which
 is what the `reversed` keyword of
 [`causal_loop_diagram`](@ref causal_loop_diagram(::BayesModel)) is for.

@@ -24,7 +24,13 @@ Modules, in import order:
 - `Loops`: the polarity of a path as a product over a list, its functoriality
   (`pathPolarity_append`), and the theorem that a loop's polarity does not depend on where
   the loop is cut (`pathPolarity_rotate`).
-- `Roadmap`: what is not proved, chiefly that monotone kernels compose.
+- `Roadmap`: what is not proved, and the two things the composition theorem does not cover.
 
-Mathlib-free by decision (ADR 0026).
+Mathlib-free by decision (ADR 0026), and this library still is: `lake build` builds exactly
+the four modules above. The composition theorem -- that monotone kernels compose, so the
+polarity of a path is the product of the polarities of its links -- is proved in the
+separate `Theory` library, which is built against Mathlib because it quantifies over
+real-valued conditional probability tables and its proof is summation by parts (ADR 0028).
+Nothing here imports it, which is what keeps that dependency confined; `make mathlib-free`
+checks the separation and `make audit` still reports these proofs as axiom-free.
 -/

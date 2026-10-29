@@ -35,9 +35,10 @@ via `[sources]` in `Project.toml`.
   touching one is `INDETERMINATE`.
 - **Monotone kernels compose**, which is what makes the reading a labelling in Baez's sense rather
   than a convention: `polarity(compose_kernel(f, g), x) == polarity(f, x) * polarity(g, y)`.
-  `test_polarity.jl` checks it against `compose_kernel` directly on all four sign combinations. Any
-  change to the monotonicity test must keep that test passing, or the package is no longer computing
-  a functor.
+  `test_polarity.jl` checks it against `compose_kernel` directly on all four sign combinations, and
+  `proofs/CausalLoopDiagramsProofs/Theory/Composition.lean` proves it for one-parent kernels in exact
+  arithmetic (ADR 0028). Any change to the monotonicity test must keep that test passing, or the
+  package is no longer computing a functor.
 - **Observation and intervention stay apart**, as in BayesianNetworks. `mode = :structural` reads each
   mechanism's own table and `mode = :observational` reads `conditional(m, child, parent)`. They are
   different functions and must not be merged or defaulted into each other; the disagreement between
@@ -76,12 +77,18 @@ via `[sources]` in `Project.toml`.
   `test_docstrings.jl` (every owned export documented). The suite uses `reference_habitat_model` and
   `vegetation_herbivore_model` from BayesianNetworks for the extraction tests, and builds a small
   confounded model of its own for the two reading modes.
-- `proofs/`: the Lean 4 library `CausalLoopDiagramsProofs`. Mathlib-free: the polarity rig is a
-  four-element type, so its laws and the rotation-invariance of a loop's polarity are decidable, and
-  a 7 GB dependency for `decide` would be absurd. It proves the rig laws of the same two tables and
-  that a loop's polarity does not depend on where the loop is cut. It does **not** model Julia arrays,
-  stochastic monotonicity, or the composition theorem; that last is the gap worth closing and it is
-  the one thing in `Roadmap.lean`.
+- `proofs/`: two Lean 4 libraries, and the split between them is ADR 0028.
+  `CausalLoopDiagramsProofs` (the default target) is **Mathlib-free**: the polarity rig is a
+  four-element type, so its laws, the subset order a motif matches along, and the
+  rotation-invariance of a loop's polarity are all decidable, and a 7 GB dependency for `decide`
+  would be absurd. `Theory` is the one library built **against Mathlib**, for the one theorem that
+  cannot be had on those terms: `Theory/Composition.lean` proves that **monotone kernels compose**
+  (`reads_comp` on the four sign combinations, `polarity_comp` stating it in the rig), over the
+  stochastic order and Abel summation in `Theory/Dominance.lean`. Nothing in the core imports
+  `Theory`, which is what confines the dependency; `make mathlib-free` checks it and CI runs that
+  check first. The proofs still do **not** model Julia arrays, and the composition theorem is for
+  kernels with one parent and exact arithmetic, so neither the quantifier over the other parents'
+  configurations nor the `atol` slack is covered; `Roadmap.lean` says so.
 
 ## Commands
 
@@ -90,7 +97,7 @@ julia --project -e 'using Pkg; Pkg.instantiate(); Pkg.test()'   # the test suite
 julia --project=docs docs/make.jl                                 # build docs locally
 cd vignettes && quarto render                                     # render vignettes to html/gfm/pdf
 julia scripts/sync_vignettes.jl [--check]                         # copy vignettes into docs/src/tutorials
-cd proofs && lake build --wfail                                   # the Lean proofs
+cd proofs && make build && make audit audit-theory mathlib-free    # the Lean proofs, both libraries
 ```
 
 ## Files not to edit by hand

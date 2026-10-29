@@ -1,11 +1,34 @@
 name = "causal_loop_diagrams_proofs"
+
+# The default target is the Mathlib-free core: `lake build` elaborates the polarity rig and
+# nothing else. ADR 0026 chose a Mathlib-free project because the rig is a four-element
+# inductive type, and that reasoning still holds for `Basic`, `Rig`, `Order` and `Loops` --
+# every law they satisfy is a case split closed by `rfl` or `decide`.
+#
+# ADR 0028 amends that decision for one library. The composition theorem -- that monotone
+# kernels compose, which is what makes reading a polarity off a conditional probability
+# table a *labelling* rather than a convention -- quantifies over real-valued kernels and
+# needs summation by parts. None of that is reachable from Lean core, so `Theory` is built
+# against Mathlib and the core is not. Nothing in `CausalLoopDiagramsProofs` imports
+# `Theory`, which is what keeps the amendment confined; `make mathlib-free` checks it.
 defaultTargets = ["CausalLoopDiagramsProofs"]
 
-# No Mathlib, and deliberately so (ADR 0026). The polarity rig is a four-element inductive
-# type, so every law it has to satisfy is closed by a finite case split and `rfl`; taking a
-# 7 GB dependency to case-split on four constructors would be absurd. This is the only
-# proofs/ project in the ecosystem without `require mathlib`, which is also why it has no
-# `packagesDir` pointing at the shared dependency checkout.
+# Share one dependency checkout (Mathlib ~7 GB) across the ecosystem's proofs/ projects. See ADR 0005.
+packagesDir = "../../.lake-packages"
+
+# Pin Mathlib to the same tag as the toolchain (Lean v4.30.0) so that `lake exe cache get`
+# fetches prebuilt .oleans. Matches every other proofs/ project in the ecosystem.
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4.git"
+rev = "v4.30.0"
 
 [[lean_lib]]
 name = "CausalLoopDiagramsProofs"
+
+# The one Mathlib-dependent library: the stochastic order on finite distributions, and the
+# composition theorem proved over it. `Theory.*` is the module and its submodules.
+[[lean_lib]]
+name = "Theory"
+srcDir = "."
+globs = ["CausalLoopDiagramsProofs.Theory.*"]
