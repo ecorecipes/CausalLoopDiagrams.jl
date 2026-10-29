@@ -12,6 +12,18 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: CausalLoopDiagrams.jl
+      - uses: actions/checkout@v4
+        with:
+          repository: ecorecipes/FiniteKernels.jl
+          path: FiniteKernels.jl
+      - uses: actions/checkout@v4
+        with:
+          repository: ecorecipes/BayesianNetworkFormats.jl
+          path: BayesianNetworkFormats.jl
+      - uses: actions/checkout@v4
+        with:
+          repository: ecorecipes/BayesianNetworks.jl
+          path: BayesianNetworks.jl
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1.12'
