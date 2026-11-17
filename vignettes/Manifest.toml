@@ -68,7 +68,7 @@ uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.18.8+1"
 
 [[deps.CausalLoopDiagrams]]
-deps = ["ACSets", "BayesianNetworks", "FiniteKernels", "OrderedCollections"]
+deps = ["ACSets", "BayesianNetworks", "FiniteKernels", "OrderedCollections", "Random", "ResilienceCore", "StructuredPopulationCore"]
 path = ".."
 uuid = "a1d5c0e2-9b47-4e3a-8f61-3c2d6b8e7f10"
 version = "0.1.0"
@@ -503,6 +503,25 @@ git-tree-sha1 = "45e428421666073eab6f2da5c9d310d99bb12f9b"
 uuid = "189a3867-3050-52da-a836-e630ba90ab69"
 version = "1.2.2"
 
+[[deps.ResilienceCore]]
+deps = ["LinearAlgebra", "Random", "StructuredPopulationCore"]
+git-tree-sha1 = "e0464260f026b5590e3e3c53d8eb9a883f441968"
+repo-url = "https://github.com/ecorecipes/ResilienceCore.jl"
+uuid = "e31f93f6-99b1-4a70-b0c5-c402beffe4e1"
+version = "0.1.0"
+
+    [deps.ResilienceCore.extensions]
+    ResilienceCoreForwardDiffExt = "ForwardDiff"
+    ResilienceCoreIntegralProjectionModelsExt = "IntegralProjectionModels"
+    ResilienceCoreMatrixProjectionModelsExt = "MatrixProjectionModels"
+    ResilienceCoreSciMLBaseExt = "SciMLBase"
+
+    [deps.ResilienceCore.weakdeps]
+    ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+    IntegralProjectionModels = "00376763-44f4-49c9-a075-cdcba60854bb"
+    MatrixProjectionModels = "521f12cc-5854-454d-93a2-8be28ae7cee2"
+    SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
+
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 version = "0.7.0"
@@ -592,6 +611,13 @@ version = "2.11.2"
     Measurements = "eff96d63-e80a-5855-80a2-b1b0885c5ab7"
     StaticArraysCore = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
     Tables = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
+
+[[deps.StructuredPopulationCore]]
+deps = ["LinearAlgebra", "Random", "Statistics"]
+git-tree-sha1 = "94d809243c5b09da67dd79110fbf2c5947b67a9e"
+repo-url = "https://github.com/ecorecipes/ProjectionModels.jl"
+uuid = "33358fd2-7d60-4541-bded-caea801370e0"
+version = "0.1.4"
 
 [[deps.StyledStrings]]
 uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
