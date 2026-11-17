@@ -131,3 +131,15 @@ NotALoopError
 TooManyLoopsError
 TooManyOccurrencesError
 ```
+
+## Qualitative stability
+
+A diagram read as the signed digraph of a dynamical system, through ResilienceCore's sign
+patterns. `SignPattern`, `quasi_sign_stability` and `press_sign_determinacy` are
+ResilienceCore's functions, re-exported here; these are their methods for diagrams.
+
+```@docs
+SignPattern(::AbstractCausalLoopDiagram)
+quasi_sign_stability(::AbstractCausalLoopDiagram)
+press_sign_determinacy(::AbstractCausalLoopDiagram)
+```
