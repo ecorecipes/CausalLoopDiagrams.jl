@@ -71,6 +71,11 @@ using BayesianNetworks: BayesModel, DynamicBayesModel, Graphviz, syntax, variabl
 
 import BayesianNetworks: to_graphviz
 
+using Random: Random, AbstractRNG
+
+using ResilienceCore: ResilienceCore
+using ResilienceCore: SignPattern, quasi_sign_stability, press_sign_determinacy
+
 # Polarities: the labels and how a conditional probability table is read as one
 export Polarity, POSITIVE, NEGATIVE, NO_EFFECT, INDETERMINATE, polarities, polarity,
        polarity_symbol, polarity_name
@@ -91,6 +96,8 @@ export MotifOccurrence, host_factors, motif_factors, occurrences, count_occurren
        MotifCount, motif_census
 # Drawing
 export to_graphviz
+# Qualitative stability, through ResilienceCore (re-exported: ResilienceCore owns them)
+export SignPattern, quasi_sign_stability, press_sign_determinacy
 # Exceptions (ADR 0013): the root and the four concrete types under it
 export CausalLoopDiagramsError, UnknownFactorError, NotALoopError, TooManyLoopsError,
        TooManyOccurrencesError
@@ -103,5 +110,6 @@ include("extraction.jl")
 include("morphisms.jl")
 include("motifs.jl")
 include("graphics.jl")
+include("resilience.jl")
 
 end # module
